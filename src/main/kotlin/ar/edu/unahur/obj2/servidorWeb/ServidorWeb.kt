@@ -10,5 +10,20 @@ enum class CodigoHttp(val codigo: Int) {
   NOT_FOUND(404),
 }
 
-class Pedido(val ip: String, val url: String, val fechaHora: LocalDateTime)
-class Respuesta(val codigo: CodigoHttp, val body: String, val tiempo: Int, val pedido: Pedido)
+class Pedido(val ip: String, val url: String, val fechaHora: LocalDateTime){
+
+    //No esta bien implementado pero bueno D:. Se puede mejorar
+  fun codigoDeRespuesta() : CodigoHttp {
+      return when {
+         url.startsWith("http:") -> CodigoHttp.OK
+         ip == "" -> CodigoHttp.NOT_FOUND
+         else -> CodigoHttp.NOT_IMPLEMENTED
+      }
+
+  }
+
+}
+
+
+
+
