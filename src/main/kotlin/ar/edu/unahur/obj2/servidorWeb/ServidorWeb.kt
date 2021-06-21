@@ -11,16 +11,18 @@ enum class CodigoHttp(val codigo: Int) {
 }
 
 class Pedido(val ip: String, val url: String, val fechaHora: LocalDateTime){
+    val modulos = mutableListOf<Modulo>()
 
     //No esta bien implementado pero bueno D:. Se puede mejorar
-  fun codigoDeRespuesta() : CodigoHttp {
-      return when {
-         url.startsWith("http:") -> CodigoHttp.OK
-         ip == "" -> CodigoHttp.NOT_FOUND
-         else -> CodigoHttp.NOT_IMPLEMENTED
-      }
-
+  fun codigoDeRespuesta(): Respuesta {
+        val modulo : Modulo = modulos.find { it -> it.puedeTrabajarCon(url) }!!
+        return when {
+            url.startsWith("http:") && this.algunModuloSoporta(url) -> Respuesta(CodigoHttp.OK,modulo.text,modulo.tiempo,this)
+            ip == "" || url  == "" && !this.algunModuloSoporta(url)-> Respuesta(CodigoHttp.NOT_FOUND,"",10,this)
+            else -> Respuesta(CodigoHttp.NOT_IMPLEMENTED,"",10,this)
+        }
   }
+    fun algunModuloSoporta(url: String) = this.modulos.any { it.puedeTrabajarCon(url) }
 
 }
 
