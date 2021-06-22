@@ -11,17 +11,31 @@ enum class CodigoHttp(val codigo: Int) {
 }
 
 class Pedido(val ip: String, val url: String, val fechaHora: LocalDateTime){
-    val modulos = mutableListOf<Modulo>()
+    private val modulos = mutableListOf<Modulo>()
 
-    //No esta bien implementado pero bueno D:. Se puede mejorar
   fun codigoDeRespuesta(): Respuesta {
-        val modulo : Modulo = modulos.find { it -> it.puedeTrabajarCon(url) }!!
-        return when {
-            url.startsWith("http:") && this.algunModuloSoporta(url) -> Respuesta(CodigoHttp.OK,modulo.text,modulo.tiempo,this)
-            ip == "" || url  == "" && !this.algunModuloSoporta(url)-> Respuesta(CodigoHttp.NOT_FOUND,"",10,this)
-            else -> Respuesta(CodigoHttp.NOT_IMPLEMENTED,"",10,this)
+        var respuesta : Respuesta
+        if (!url.startsWith("http:")) {
+            respuesta =  Respuesta(CodigoHttp.NOT_IMPLEMENTED, "", 10,this)
         }
+        if (this.algunModuloSoporta(url)) {
+            val moduloSeleccionado = this.modulos.find { it.puedeTrabajarCon(url) }!!
+            respuesta =  Respuesta(CodigoHttp.OK, moduloSeleccionado.text, moduloSeleccionado.tiempo, this)
+        }
+        respuesta = Respuesta(CodigoHttp.NOT_FOUND,"", 10,this)
+
+        return  respuesta
   }
+
+    fun agregarModulos(modulo: Modulo){
+        modulos.add(modulo)
+    }
+
+    fun quitarModulo(modulo: Modulo){
+        modulos.remove(modulo)
+    }
+
+
     fun algunModuloSoporta(url: String) = this.modulos.any { it.puedeTrabajarCon(url) }
 
 }
