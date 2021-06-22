@@ -10,22 +10,27 @@ enum class CodigoHttp(val codigo: Int) {
   NOT_FOUND(404),
 }
 
-class Pedido(val ip: String, val url: String, val fechaHora: LocalDateTime){
+
+class  ServidorWeb(){
     private val modulos = mutableListOf<Modulo>()
 
-  fun codigoDeRespuesta(): Respuesta {
-        var respuesta : Respuesta
-        if (!url.startsWith("http:")) {
-            respuesta =  Respuesta(CodigoHttp.NOT_IMPLEMENTED, "", 10,this)
-        }
-        if (this.algunModuloSoporta(url)) {
-            val moduloSeleccionado = this.modulos.find { it.puedeTrabajarCon(url) }!!
-            respuesta =  Respuesta(CodigoHttp.OK, moduloSeleccionado.text, moduloSeleccionado.tiempo, this)
-        }
-        respuesta = Respuesta(CodigoHttp.NOT_FOUND,"", 10,this)
+    fun codigoDeRespuesta(pedido: Pedido): Respuesta {
+        var respuesta : Respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
 
+        if (!pedido.url.startsWith("http:")) {
+            respuesta = Respuesta(CodigoHttp.NOT_IMPLEMENTED, "", 10, pedido)
+        }
+
+        if (pedido.url == "" || pedido.ip == "") {
+            respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
+        }
+
+        if (this.algunModuloSoporta(pedido.url)) {
+            val moduloSeleccionado = this.modulos.find { it.puedeTrabajarCon(pedido.url) }!!
+            respuesta = Respuesta(CodigoHttp.OK, moduloSeleccionado.text, moduloSeleccionado.tiempo, pedido)
+        }
         return  respuesta
-  }
+    }
 
     fun agregarModulos(modulo: Modulo){
         modulos.add(modulo)
@@ -35,11 +40,6 @@ class Pedido(val ip: String, val url: String, val fechaHora: LocalDateTime){
         modulos.remove(modulo)
     }
 
-
     fun algunModuloSoporta(url: String) = this.modulos.any { it.puedeTrabajarCon(url) }
 
 }
-
-
-
-

@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 
 class ServidorWebTest : DescribeSpec({
   describe("Un servidor web") {
+    val servidorWeb = ServidorWeb()
     val pedido1 = Pedido("196.023.012","http://github.com/obj2-unahur-2021s1/servidor-web-sag-schon-sasuke.jpg",LocalDateTime.now())
     val pedido2 = Pedido("196.023.012","https://github.com/obj2-unahur-2021s1/servidor-web-sag-schon-sasuke",LocalDateTime.now())
     val pedido3 = Pedido("","https://github.com/obj2-unahur-2021s1/servidor-web-sag-schon-sasuke.docx",LocalDateTime.now())
@@ -13,19 +14,20 @@ class ServidorWebTest : DescribeSpec({
 
     describe("Test CodigoHttp de pedido"){
 
-      // Se rompio todo, la mala
-
       it("200 OK"){
-        pedido1.agregarModulos(modulo1)
-        pedido1.codigoDeRespuesta().shouldBe(Respuesta(CodigoHttp.OK,modulo1.text,modulo1.tiempo,pedido1))
+        servidorWeb.agregarModulos(modulo1)
+        val respuesta1 = servidorWeb.codigoDeRespuesta(pedido1)
+        respuesta1.codigo.shouldBe(CodigoHttp.OK)
       }
 
       it("501 Not Implemented"){
-        pedido2.codigoDeRespuesta().shouldBe(Respuesta(CodigoHttp.NOT_IMPLEMENTED,"",10,pedido1))
+        val repuesta2 = servidorWeb.codigoDeRespuesta(pedido2)
+        repuesta2.codigo.shouldBe(CodigoHttp.NOT_IMPLEMENTED)
       }
 
       it("404 Not Found"){
-        pedido3.codigoDeRespuesta().shouldBe(Respuesta(CodigoHttp.NOT_FOUND ,"",10,pedido1))
+        val respuesta3 = servidorWeb.codigoDeRespuesta(pedido3)
+        respuesta3.codigo.shouldBe(CodigoHttp.NOT_FOUND)
       }
 
     }
