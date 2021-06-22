@@ -12,6 +12,8 @@ class ServidorWebTest : DescribeSpec({
     val pedido3 = Pedido("","https://www.apuntes.docx",LocalDateTime.now())
     val modulo1 = Modulo(mutableListOf<String>("jpg","doc","docx","gif"),"Hola mi amor",14)
     val modulo2 = Modulo(mutableListOf<String>("jpg","png","rar","bin","php"),"Hola mi amor",14)
+    val analizador1 = Analizador()
+    val analizador2 = Analizador()
 
     describe("Test CodigoHttp de pedido"){
 
@@ -76,9 +78,28 @@ class ServidorWebTest : DescribeSpec({
           respuesta5.body.shouldBe("")
           respuesta5.codigo.shouldBe(CodigoHttp.NOT_FOUND)
         }
+      }
 
+      describe("Cantidad de respuestas demoradas"){
+        servidorWeb.agregarModulos(modulo1)
+        servidorWeb.agregarAnalizador(analizador1)
+        servidorWeb.recibirPedido(pedido1)
+
+        it("1"){
+          modulo1.cantidadDeRespuestaDemoradas.shouldBe(1)
+        }
+
+        it("2"){
+          servidorWeb.agregarAnalizador(analizador2)
+          servidorWeb.analizadores.size.shouldBe(2)
+          modulo1.cantidadDeRespuestaDemoradas.shouldBe(2)
+        }
 
       }
+
+    }
+    describe("Testa Analizadores"){
+
     }
     }
 })
