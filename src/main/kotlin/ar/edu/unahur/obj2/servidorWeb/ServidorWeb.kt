@@ -1,7 +1,5 @@
 package ar.edu.unahur.obj2.servidorWeb
 
-import java.time.LocalDateTime
-
 // Para no tener los códigos "tirados por ahí", usamos un enum que le da el nombre que corresponde a cada código
 // La idea de las clases enumeradas es usar directamente sus objetos: CodigoHTTP.OK, CodigoHTTP.NOT_IMPLEMENTED, etc
 enum class CodigoHttp(val codigo: Int) {
@@ -11,24 +9,29 @@ enum class CodigoHttp(val codigo: Int) {
 }
 
 
-class  ServidorWeb(){
+class  ServidorWeb() {
     private val modulos = mutableListOf<Modulo>()
 
-    fun codigoDeRespuesta(pedido: Pedido): Respuesta {
-        var respuesta : Respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
+    fun recibirPedido(pedido: Pedido): Respuesta {
+        var respuesta : Respuesta = Respuesta(CodigoHttp.NOT_IMPLEMENTED, "", 10, pedido)
 
-        if (!pedido.url.startsWith("http:")) {
-            respuesta = Respuesta(CodigoHttp.NOT_IMPLEMENTED, "", 10, pedido)
-        }
-
-        if (pedido.url == "" || pedido.ip == "") {
+        if (!pedido.url.startsWith("http:") && !this.algunModuloSoporta(pedido.url)) {
             respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
         }
 
-        if (this.algunModuloSoporta(pedido.url)) {
+       if (this.algunModuloSoporta(pedido.url) && pedido.url.startsWith("http:")) {
+
             val moduloSeleccionado = this.modulos.find { it.puedeTrabajarCon(pedido.url) }!!
-            respuesta = Respuesta(CodigoHttp.OK, moduloSeleccionado.text, moduloSeleccionado.tiempo, pedido)
+           respuesta =  Respuesta(CodigoHttp.OK, moduloSeleccionado.body, moduloSeleccionado.tiempo, pedido)
+
+        } else {
+
+            if (!this.algunModuloSoporta(pedido.url ) && pedido.url.startsWith("http:")) {
+               respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
+
+            }
         }
+
         return  respuesta
     }
 
