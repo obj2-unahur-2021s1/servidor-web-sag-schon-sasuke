@@ -8,7 +8,6 @@ enum class CodigoHttp(val codigo: Int) {
   NOT_FOUND(404),
 }
 class  ServidorWeb() {
-    var cantidadDeRespuestas : Int = 0
     private val modulos = mutableListOf<Modulo>()
      val analizadores = mutableListOf<Analizador>() !!
 
@@ -23,9 +22,10 @@ class  ServidorWeb() {
            val moduloSeleccionado : Modulo = this.modulos.find { it.puedeTrabajarCon(pedido.url) }!!
            respuesta =  Respuesta(CodigoHttp.OK, moduloSeleccionado.body, moduloSeleccionado.tiempo, pedido)
 
-           if (analizadores.size > 0) {
-               cantidadDeRespuestas = this.analizadores.count{ it -> it.seDemora(respuesta)}
-               moduloSeleccionado.cantidadDeRespuestaDemoradas = cantidadDeRespuestas
+           if (this.analizadores.size > 0) {
+
+               this.analizadores.forEach { it.recibeRespuestaYModulo(respuesta,moduloSeleccionado) }
+
            }
 
         } else {

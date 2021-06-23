@@ -83,15 +83,17 @@ class ServidorWebTest : DescribeSpec({
       describe("Cantidad de respuestas demoradas"){
         servidorWeb.agregarModulos(modulo1)
         servidorWeb.agregarAnalizador(analizador1)
-        servidorWeb.recibirPedido(pedido1)
 
         it("1"){
+          servidorWeb.recibirPedido(pedido1)
           modulo1.cantidadDeRespuestaDemoradas.shouldBe(1)
         }
 
         it("2"){
+          servidorWeb.agregarModulos(modulo2)
           servidorWeb.agregarAnalizador(analizador2)
-          servidorWeb.analizadores.size.shouldBe(2)
+          servidorWeb.recibirPedido(pedido1)
+
           modulo1.cantidadDeRespuestaDemoradas.shouldBe(2)
         }
 
