@@ -1,44 +1,37 @@
 package ar.edu.unahur.obj2.servidorWeb
 
 class Analizador( val demoraMinima : Int = 12 ){
-    val ipSospechosas = mutableListOf<Ip>()
-
+    val ipSospechosas = mutableSetOf<String>()
+    val resgistroDeRespuestas = mutableSetOf<Respuesta>()
 
     fun seDemora(respuesta: Respuesta) = respuesta.tiempo > this.demoraMinima
 
 
-    fun cuantosHizoIp(ip: Ip) : Int {
+    fun cuantosPedidosRealizo(ip: String) : Int {
         var cantidad : Int = 0
-
-        if (ipSospechosas.contains(ip.ip)){
-           cantidad = this.ipSospechosas.find { it.ip == ip.ip}!!.pedidosRealizados
+        if (resgistroDeRespuestas.any{ it.pedido.ip == ip }) {
+            val ipseleccionada = resgistroDeRespuestas.find { it.pedido.ip == ip }!!
+            cantidad = ipseleccionada.pedido.cuantosPedidosRealizo
         }
-        return  cantidad
-    }
-
-    fun moduloMasConsultado(){
-
+        return cantidad
     }
 
     fun recibeRespuestaYModulo(respuesta: Respuesta,modulo: Modulo){
 
-        this.seDemora(respuesta)
-        ipSospechosas.forEach { it.realizoPedidos(respuesta.pedido.ip) }
+        resgistroDeRespuestas.add(respuesta)
 
         if (this.seDemora(respuesta)){
             modulo.cantidadDeRespuestaDemoradas += 1
         }
 
+        if (ipSospechosas.contains(respuesta.pedido.ip)){
+            respuesta.pedido.cuantosPedidosRealizo += 1
+        }
+
     }
 
-}
-
-class Ip(var ip : String, var pedidosRealizados : Int = 0){
-
-    fun realizoPedidos(ip: String){
-        if (this.ip == ip){
-            this.pedidosRealizados +=1
-        }
+    fun anadirIpSospechosa(ip :String){
+        ipSospechosas.add(ip)
     }
 
 }

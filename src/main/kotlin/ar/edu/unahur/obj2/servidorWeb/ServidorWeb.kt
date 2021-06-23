@@ -9,17 +9,17 @@ enum class CodigoHttp(val codigo: Int) {
 }
 class  ServidorWeb() {
     private val modulos = mutableListOf<Modulo>()
-     val analizadores = mutableListOf<Analizador>() !!
+     val analizadores = mutableListOf<Analizador>()
 
     fun recibirPedido(pedido: Pedido): Respuesta {
         var respuesta : Respuesta = Respuesta(CodigoHttp.NOT_IMPLEMENTED, "", 10, pedido)
 
-        if (!pedido.url.startsWith("http:") && !this.algunModuloSoporta(pedido.url)) {
+        if (pedido.protocolo() != "http" && !this.algunModuloSoporta(pedido)) {
             respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
         }
 
-       if (this.algunModuloSoporta(pedido.url) && pedido.url.startsWith("http:")) {
-           val moduloSeleccionado : Modulo = this.modulos.find { it.puedeTrabajarCon(pedido.url) }!!
+       if (this.algunModuloSoporta(pedido) && pedido.protocolo() == "http") {
+           val moduloSeleccionado : Modulo = this.modulos.find { it.puedeTrabajarCon(pedido) }!!
            respuesta =  Respuesta(CodigoHttp.OK, moduloSeleccionado.body, moduloSeleccionado.tiempo, pedido)
 
            if (this.analizadores.size > 0) {
@@ -30,7 +30,7 @@ class  ServidorWeb() {
 
         } else {
 
-            if (!this.algunModuloSoporta(pedido.url ) && pedido.url.startsWith("http:")) {
+            if (!this.algunModuloSoporta(pedido ) && pedido.protocolo() == "http") {
                respuesta = Respuesta(CodigoHttp.NOT_FOUND, "", 10, pedido)
 
             }
@@ -41,8 +41,10 @@ class  ServidorWeb() {
 
     fun agregarModulos(modulo: Modulo){
         if (!modulos.contains(modulo)){
-        modulos.add(modulo)}
+        modulos.add(modulo)
+        }
     }
+
 
     fun quitarModulo(modulo: Modulo){
         if (modulos.contains(modulo)){
@@ -50,8 +52,8 @@ class  ServidorWeb() {
         }
     }
 
-    fun agregarAnalizador(analizador: Analizador){
-        if (!analizadores.contains(analizador)){
+    fun agregarAnalizador(analizador: Analizador) {
+        if (!analizadores.contains(analizador)) {
             analizadores.add(analizador)
         }
     }
@@ -61,7 +63,7 @@ class  ServidorWeb() {
         }
     }
 
-    fun algunModuloSoporta(url: String) = this.modulos.any { it.puedeTrabajarCon(url) }
+    fun algunModuloSoporta(url: Pedido) = this.modulos.any { it.puedeTrabajarCon(url) }
 
 }
 

@@ -8,10 +8,10 @@ class ServidorWebTest : DescribeSpec({
   describe("Un servidor web") {
     val servidorWeb = ServidorWeb()
     val pedido1 = Pedido("196.023.012","http://www.tooltyp.com/wp-content/uploads/2014/10/1900x920-8-beneficios-de-usar-imagenes-en-nuestros-sitios-web.jpg",LocalDateTime.now())
-    val pedido2 = Pedido("196.023.012","https://campus-act.unahur.edu.ar/login/index.php",LocalDateTime.now())
+    val pedido2 = Pedido("196.023.013","https://campus-act.unahur.edu.ar/login/index.php",LocalDateTime.now())
     val pedido3 = Pedido("","https://www.apuntes.docx",LocalDateTime.now())
-    val modulo1 = Modulo(mutableListOf<String>("jpg","doc","docx","gif"),"Hola mi amor",14)
-    val modulo2 = Modulo(mutableListOf<String>("jpg","png","rar","bin","php"),"Hola mi amor",14)
+    val modulo1 = Modulo(mutableListOf<String>("jpg","doc","docx","gif"),"Imagenes y texto",14)
+    val modulo2 = Modulo(mutableListOf<String>("jpg","png","rar","bin","php"),"Imagenes y cosas ",14)
     val analizador1 = Analizador()
     val analizador2 = Analizador()
 
@@ -41,21 +41,25 @@ class ServidorWebTest : DescribeSpec({
       describe("Puede responder al pedido con sus extensiones") {
 
         it("DOC") {
-          modulo1.puedeTrabajarCon("https://github.com/obj2-unahur-2021s1/servidor-web-sag-schon-sasuke.doc")
+          val pedido = Pedido("196.023.012","https://github.com/obj2-unahur-2021s1/servidor-web-sag-schon-sasuke.doc",LocalDateTime.now())
+          modulo1.puedeTrabajarCon(pedido)
             .shouldBe(true)
         }
         it("GIF") {
-          modulo1.puedeTrabajarCon("https://github.com/obj2-unahur-2021s1/servidor-web-sag-schon-sasuke.gif")
+          val pedido = Pedido("196.123.012","https://campus-act.unahur.edu.ar/login/index.gif",LocalDateTime.now())
+          modulo1.puedeTrabajarCon(pedido)
             .shouldBe(true)
         }
         it("JPG") {
-          modulo1.puedeTrabajarCon("https://Unahur.jpg").shouldBe(true)
+          modulo1.puedeTrabajarCon(pedido1).shouldBe(true)
         }
         it("GITHUB") {
-          modulo1.puedeTrabajarCon("https://Programacion.github").shouldBe(false)
+          val pedido = Pedido("196.023.045","https://Programacion.github",LocalDateTime.now())
+          modulo1.puedeTrabajarCon(pedido).shouldBe(false)
         }
         it("PNG") {
-          modulo1.puedeTrabajarCon("https://Programacion.png").shouldBe(false)
+          val pedido = Pedido("196.023.045","https://Programacion.png",LocalDateTime.now())
+          modulo1.puedeTrabajarCon(pedido).shouldBe(false)
         }
       }
 
@@ -96,12 +100,37 @@ class ServidorWebTest : DescribeSpec({
 
           modulo1.cantidadDeRespuestaDemoradas.shouldBe(2)
         }
+        it("0"){
+
+          modulo2.cantidadDeRespuestaDemoradas.shouldBe(0)
+
+        }
 
       }
 
     }
-    describe("Testa Analizadores"){
+    describe("Test Analizadores"){
+      describe("Pedidos realizados por ip sospechoza"){
+        analizador1.anadirIpSospechosa("197.096.011")
+        analizador1.anadirIpSospechosa("132.000.002")
+        analizador1.anadirIpSospechosa("196.023.012")
+        analizador1.anadirIpSospechosa("196.023.013")
+        servidorWeb.agregarAnalizador(analizador1)
+        servidorWeb.agregarModulos(modulo1)
+        servidorWeb.recibirPedido(pedido1)
 
+        it("1"){
+
+          analizador1.cuantosPedidosRealizo("196.023.012").shouldBe(1)
+
+        }
+
+        it("2"){
+          servidorWeb.recibirPedido(pedido1)
+          analizador1.cuantosPedidosRealizo("196.023.012").shouldBe(2)
+
+        }
+      }
     }
-    }
+  }
 })
